@@ -215,7 +215,7 @@ const Gallery = () => {
         <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
           {/* Hero Section */}
           <div className="max-w-6xl mx-auto text-center mb-12 sm:mb-16 lg:mb-20">
-            <div className="absolute inset-0 bg-card/25 backdrop-blur-xl rounded-3xl -mx-4 sm:-mx-8 -my-8 sm:-my-12 shadow-2xl animate-scale-in"></div>
+            <div className="absolute inset-0 bg-card/25 rounded-3xl -mx-4 sm:-mx-8 -my-8 sm:-my-12 shadow-2xl animate-scale-in"></div>
             
             <div className="relative z-10 px-6 sm:px-8 py-8 sm:py-12">
               <div className="retro-handwritten text-sunset-orange text-xl mb-4 animate-wiggle">
@@ -250,7 +250,7 @@ const Gallery = () => {
                     text-white px-4 sm:px-6 py-3 sm:py-4 rounded-full font-medium text-sm sm:text-base
                     transition-all duration-300 transform hover:-translate-y-1 
                     focus:outline-none focus:ring-2 focus:ring-white/50
-                    backdrop-blur-sm border border-white/30 flex items-center space-x-2
+                    border border-white/30 flex items-center space-x-2
                   `}
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
@@ -279,7 +279,7 @@ const Gallery = () => {
                   <select 
                     value={selectedFilter} 
                     onChange={(e) => setSelectedFilter(e.target.value)}
-                    className="bg-secondary/80 backdrop-blur-sm border border-border rounded-lg px-4 py-2 text-secondary-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 appearance-none pr-8"
+                    className="bg-secondary/80 border border-border rounded-lg px-4 py-2 text-secondary-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 appearance-none pr-8"
                   >
                     {filters.map(filter => (
                       <option key={filter.value} value={filter.value} className="bg-background text-foreground">
@@ -293,7 +293,7 @@ const Gallery = () => {
                 {/* View Toggle */}
                 <button 
                   onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-                  className="bg-secondary/80 backdrop-blur-sm border border-border rounded-lg p-2 text-secondary-foreground hover:bg-secondary transition-colors duration-200"
+                  className="bg-secondary/80 border border-border rounded-lg p-2 text-secondary-foreground hover:bg-secondary transition-colors duration-200"
                 >
                   {viewMode === 'grid' ? <List className="h-5 w-5" /> : <Grid3X3 className="h-5 w-5" />}
                 </button>
@@ -306,7 +306,7 @@ const Gallery = () => {
             {displayedItems.map((item, index) => (
               <div 
                 key={item.id} 
-                className={`group animate-fade-in ${viewMode === 'grid' ? '' : 'flex items-center space-x-4 bg-card/80 backdrop-blur-sm rounded-xl p-4 border border-border/50'}`}
+                className={`group animate-fade-in ${viewMode === 'grid' ? '' : 'flex items-center space-x-4 bg-card/80 rounded-xl p-4 border border-border/50'}`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 {viewMode === 'grid' ? (
@@ -330,20 +330,20 @@ const Gallery = () => {
                         className={`p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110 ${
                           likedItems.has(item.id) 
                             ? 'bg-sunset-orange text-white' 
-                            : 'bg-white/90 backdrop-blur-sm hover:bg-white'
+                            : 'bg-white/90 hover:bg-white'
                         }`}
                       >
                         <Heart className={`h-4 w-4 ${likedItems.has(item.id) ? 'fill-current' : 'text-sunset-orange'}`} />
                       </button>
                       <button 
                         onClick={() => handleShare(item)}
-                        className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-white transition-all duration-300 hover:scale-110"
+                        className="bg-white/90 p-2 rounded-full shadow-lg hover:bg-white transition-all duration-300 hover:scale-110"
                       >
                         <Share2 className="h-4 w-4 text-vintage-teal" />
                       </button>
                       <button 
                         onClick={() => handleDownload(item)}
-                        className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-white transition-all duration-300 hover:scale-110"
+                        className="bg-white/90 p-2 rounded-full shadow-lg hover:bg-white transition-all duration-300 hover:scale-110"
                       >
                         <Download className="h-4 w-4 text-retro-purple" />
                       </button>
