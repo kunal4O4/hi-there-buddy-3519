@@ -1,10 +1,13 @@
 import polaroid1 from "@/assets/polaroid-1.webp";
 import polaroid2 from "@/assets/polaroid-2.webp";
 import polaroid3 from "@/assets/polaroid-3.webp";
-import { Heart, MessageCircle, Share2 } from "lucide-react";
+import { Heart, MessageCircle, Share2, X, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import RetroImage from "@/components/RetroImage";
 
 const memories = [
@@ -42,6 +45,27 @@ const memories = [
 
 const PolaroidMemories = () => {
   const navigate = useNavigate();
+  const [likedMemories, setLikedMemories] = useState<Set<number>>(new Set());
+  const [commentModal, setCommentModal] = useState<number | null>(null);
+  const [commentText, setCommentText] = useState("");
+  const [memoryComments, setMemoryComments] = useState<{[key: number]: Array<{id: number, text: string, author: string, time: string}>}>({
+    1: [
+      { id: 1, text: "What an amazing event! 🎉", author: "Sarah M.", time: "2 hours ago" },
+      { id: 2, text: "Loved every moment of it!", author: "Mike R.", time: "4 hours ago" }
+    ],
+    2: [
+      { id: 3, text: "The music was incredible! 🎵", author: "Emma L.", time: "1 day ago" }
+    ],
+    3: [
+      { id: 4, text: "Best food festival ever! 🍕", author: "Alex K.", time: "3 hours ago" },
+      { id: 5, text: "So many delicious options!", author: "Lisa P.", time: "5 hours ago" }
+    ]
+  });
+  const [memoryLikes, setMemoryLikes] = useState<{[key: number]: number}>({
+    1: 127,
+    2: 89,
+    3: 156
+  });
 
   const handleShare = (memoryTitle: string) => {
     if (navigator.share) {
@@ -57,6 +81,59 @@ const PolaroidMemories = () => {
         description: `Share this amazing memory: ${memoryTitle}`,
       });
     }
+  };
+
+  const handleLike = (memoryId: number) => {
+    const newLiked = new Set(likedMemories);
+    let newLikes = { ...memoryLikes };
+    
+    if (newLiked.has(memoryId)) {
+      newLiked.delete(memoryId);
+      newLikes[memoryId] = Math.max(0, newLikes[memoryId] - 1);
+      toast({
+        title: "Like removed",
+        description: "You unliked this memory",
+      });
+    } else {
+      newLiked.add(memoryId);
+      newLikes[memoryId] = newLikes[memoryId] + 1;
+      toast({
+        title: "Memory liked! ❤️",
+        description: "You liked this amazing moment",
+      });
+    }
+    
+    setLikedMemories(newLiked);
+    setMemoryLikes(newLikes);
+  };
+
+  const handleComment = (memoryId: number) => {
+    setCommentModal(memoryId);
+    setCommentText("");
+  };
+
+  const handleAddComment = (memoryId: number) => {
+    if (!commentText.trim()) return;
+    
+    const newComment = {
+      id: Date.now(),
+      text: commentText,
+      author: "You",
+      time: "Just now"
+    };
+    
+    setMemoryComments(prev => ({
+      ...prev,
+      [memoryId]: [...(prev[memoryId] || []), newComment]
+    }));
+    
+    setCommentText("");
+    setCommentModal(null);
+    
+    toast({
+      title: "Comment added! 💬",
+      description: "Your comment has been shared",
+    });
   };
 
   const handleViewAll = () => {
@@ -115,20 +192,30 @@ const PolaroidMemories = () => {
                     </p>
                     
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3 text-xs text-muted-foreground">
-                        <div className="flex items-center space-x-1">
-                          <Heart className="h-3 w-3" />
-                          <span>{memory.likes}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
+                      <div className="flex items-center space-x-4">
+                        <button
+                          onClick={() => handleLike(memory.id)}
+                          className={`flex items-center space-x-1 text-xs transition-colors ${
+                            likedMemories.has(memory.id) 
+                              ? 'text-sunset-orange' 
+                              : 'text-muted-foreground hover:text-sunset-orange'
+                          }`}
+                        >
+                          <Heart className={`h-3 w-3 ${likedMemories.has(memory.id) ? 'fill-current' : ''}`} />
+                          <span>{memoryLikes[memory.id] || memory.likes}</span>
+                        </button>
+                        <button
+                          onClick={() => handleComment(memory.id)}
+                          className="flex items-center space-x-1 text-xs text-muted-foreground hover:text-vintage-teal transition-colors"
+                        >
                           <MessageCircle className="h-3 w-3" />
-                          <span>{memory.comments}</span>
-                        </div>
+                          <span>{memoryComments[memory.id]?.length || memory.comments}</span>
+                        </button>
                       </div>
                       <Button 
                         size="sm" 
                         variant="ghost" 
-                        className="p-1 h-auto"
+                        className="p-1 h-auto text-muted-foreground hover:text-retro-purple"
                         onClick={() => handleShare(memory.title)}
                       >
                         <Share2 className="h-3 w-3" />
@@ -164,6 +251,64 @@ const PolaroidMemories = () => {
           </Button>
         </div>
       </div>
+
+      {/* Comment Modal */}
+      {commentModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-lg max-h-[80vh] overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <CardTitle className="text-lg">
+                Comments - {memories.find(m => m.id === commentModal)?.title}
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCommentModal(null)}
+                className="h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Comments List */}
+              <div className="max-h-60 overflow-y-auto space-y-3">
+                {memoryComments[commentModal]?.map((comment) => (
+                  <div key={comment.id} className="p-3 bg-muted/50 rounded-lg">
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="font-medium text-sm text-foreground">{comment.author}</span>
+                      <span className="text-xs text-muted-foreground">{comment.time}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{comment.text}</p>
+                  </div>
+                ))}
+                {(!memoryComments[commentModal] || memoryComments[commentModal].length === 0) && (
+                  <p className="text-center text-muted-foreground text-sm py-4">
+                    No comments yet. Be the first to comment!
+                  </p>
+                )}
+              </div>
+              
+              {/* Add Comment */}
+              <div className="flex gap-2 pt-4 border-t">
+                <Input
+                  placeholder="Add a comment..."
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleAddComment(commentModal)}
+                  className="flex-1"
+                />
+                <Button
+                  onClick={() => handleAddComment(commentModal)}
+                  disabled={!commentText.trim()}
+                  size="sm"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </section>
   );
 };
