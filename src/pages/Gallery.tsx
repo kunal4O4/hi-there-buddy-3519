@@ -323,47 +323,44 @@ const Gallery = () => {
                       className="mb-4" 
                     />
                     
-                    {/* Overlay Actions */}
-                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 space-y-2 transform translate-x-2 group-hover:translate-x-0">
-                      <button 
-                        onClick={() => handleLike(item.id)}
-                        className={`p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110 ${
-                          likedItems.has(item.id) 
-                            ? 'bg-sunset-orange text-white' 
-                            : 'bg-white/90 hover:bg-white'
-                        }`}
-                      >
-                        <Heart className={`h-4 w-4 ${likedItems.has(item.id) ? 'fill-current' : 'text-sunset-orange'}`} />
-                      </button>
-                      <button 
-                        onClick={() => handleShare(item)}
-                        className="bg-white/90 p-2 rounded-full shadow-lg hover:bg-white transition-all duration-300 hover:scale-110"
-                      >
-                        <Share2 className="h-4 w-4 text-vintage-teal" />
-                      </button>
-                      <button 
-                        onClick={() => handleDownload(item)}
-                        className="bg-white/90 p-2 rounded-full shadow-lg hover:bg-white transition-all duration-300 hover:scale-110"
-                      >
-                        <Download className="h-4 w-4 text-retro-purple" />
-                      </button>
-                    </div>
+                     {/* Overlay Actions */}
+                     <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 space-y-2 transform translate-x-2 group-hover:translate-x-0">
+                       <button 
+                         onClick={() => handleShare(item)}
+                         className="bg-white/90 p-2 rounded-full shadow-lg hover:bg-white transition-all duration-300 hover:scale-110"
+                       >
+                         <Share2 className="h-4 w-4 text-vintage-teal" />
+                       </button>
+                       <button 
+                         onClick={() => handleDownload(item)}
+                         className="bg-white/90 p-2 rounded-full shadow-lg hover:bg-white transition-all duration-300 hover:scale-110"
+                       >
+                         <Download className="h-4 w-4 text-retro-purple" />
+                       </button>
+                     </div>
                     
                     <div className="space-y-3">
                       <h3 className="retro-heading text-foreground font-semibold text-lg">{item.title}</h3>
                       
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center space-x-3 text-muted-foreground">
-                          <div className="flex items-center space-x-1">
-                            <Heart className="h-4 w-4 text-sunset-orange" />
-                            <span>{item.likes}</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Eye className="h-4 w-4 text-vintage-teal" />
-                            <span>{item.views}</span>
-                          </div>
-                        </div>
-                      </div>
+                       <div className="flex items-center justify-between text-sm">
+                         <div className="flex items-center space-x-3 text-muted-foreground">
+                           <button
+                             onClick={() => handleLike(item.id)}
+                             className={`flex items-center space-x-1 transition-colors hover:scale-105 ${
+                               likedItems.has(item.id) 
+                                 ? 'text-sunset-orange' 
+                                 : 'text-muted-foreground hover:text-sunset-orange'
+                             }`}
+                           >
+                             <Heart className={`h-4 w-4 ${likedItems.has(item.id) ? 'fill-current' : ''}`} />
+                             <span>{item.likes + (likedItems.has(item.id) ? 1 : 0)}</span>
+                           </button>
+                           <div className="flex items-center space-x-1">
+                             <Eye className="h-4 w-4 text-vintage-teal" />
+                             <span>{item.views}</span>
+                           </div>
+                         </div>
+                       </div>
                       
                       <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                         <MapPin className="h-3 w-3" />
