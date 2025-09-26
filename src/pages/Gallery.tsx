@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { Heart, MapPin, Calendar, Filter, Grid3X3, List, Eye, Download, Share2, Sparkles, ArrowUp } from 'lucide-react';
+import { Heart, MapPin, Calendar, Filter, Grid3X3, List, Eye, Download, Share2, Sparkles, ArrowUp, MessageCircle, X, Send } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -17,6 +19,20 @@ const Gallery = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [likedItems, setLikedItems] = useState<Set<number>>(new Set());
   const [loadedItems, setLoadedItems] = useState(6);
+  const [commentModal, setCommentModal] = useState<number | null>(null);
+  const [commentText, setCommentText] = useState("");
+  const [itemComments, setItemComments] = useState<{[key: number]: Array<{id: number, text: string, author: string, time: string}>}>({
+    1: [
+      { id: 1, text: "Such a beautiful moment! 📸", author: "Emma R.", time: "1 hour ago" },
+      { id: 2, text: "This brings back so many memories!", author: "Jake M.", time: "3 hours ago" }
+    ],
+    2: [
+      { id: 3, text: "Amazing ceremony! 🎓", author: "Sarah L.", time: "2 hours ago" }
+    ],
+    3: [
+      { id: 4, text: "Squad goals forever! ✨", author: "Alex K.", time: "4 hours ago" }
+    ]
+  });
   const heroRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -50,6 +66,35 @@ const Gallery = () => {
       });
     }
     setLikedItems(newLiked);
+  };
+
+  const handleComment = (itemId: number) => {
+    setCommentModal(itemId);
+    setCommentText("");
+  };
+
+  const handleAddComment = (itemId: number) => {
+    if (!commentText.trim()) return;
+    
+    const newComment = {
+      id: Date.now(),
+      text: commentText,
+      author: "You",
+      time: "Just now"
+    };
+    
+    setItemComments(prev => ({
+      ...prev,
+      [itemId]: [...(prev[itemId] || []), newComment]
+    }));
+    
+    setCommentText("");
+    setCommentModal(null);
+    
+    toast({
+      title: "Comment added! 💬",
+      description: "Your comment has been shared",
+    });
   };
 
   const handleShare = (item: any) => {
@@ -355,6 +400,13 @@ const Gallery = () => {
                              <Heart className={`h-4 w-4 ${likedItems.has(item.id) ? 'fill-current' : ''}`} />
                              <span>{item.likes + (likedItems.has(item.id) ? 1 : 0)}</span>
                            </button>
+                           <button
+                             onClick={() => handleComment(item.id)}
+                             className="flex items-center space-x-1 text-muted-foreground hover:text-vintage-teal transition-colors hover:scale-105"
+                           >
+                             <MessageCircle className="h-4 w-4" />
+                             <span>{itemComments[item.id]?.length || 0}</span>
+                           </button>
                            <div className="flex items-center space-x-1">
                              <Eye className="h-4 w-4 text-vintage-teal" />
                              <span>{item.views}</span>
@@ -458,6 +510,64 @@ const Gallery = () => {
 
         <Footer />
       </div>
+
+      {/* Comment Modal */}
+      {commentModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-lg max-h-[80vh] overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <CardTitle className="text-lg">
+                Comments - {galleryItems.find(item => item.id === commentModal)?.title}
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCommentModal(null)}
+                className="h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Comments List */}
+              <div className="max-h-60 overflow-y-auto space-y-3">
+                {itemComments[commentModal]?.map((comment) => (
+                  <div key={comment.id} className="p-3 bg-muted/50 rounded-lg">
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="font-medium text-sm text-foreground">{comment.author}</span>
+                      <span className="text-xs text-muted-foreground">{comment.time}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{comment.text}</p>
+                  </div>
+                ))}
+                {(!itemComments[commentModal] || itemComments[commentModal].length === 0) && (
+                  <p className="text-center text-muted-foreground text-sm py-4">
+                    No comments yet. Be the first to comment!
+                  </p>
+                )}
+              </div>
+              
+              {/* Add Comment */}
+              <div className="flex gap-2 pt-4 border-t">
+                <Input
+                  placeholder="Add a comment..."
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleAddComment(commentModal)}
+                  className="flex-1"
+                />
+                <Button
+                  onClick={() => handleAddComment(commentModal)}
+                  disabled={!commentText.trim()}
+                  size="sm"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
